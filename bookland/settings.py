@@ -10,22 +10,37 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 
+import os
+
 from pathlib import Path
+
+from django.core.exceptions import ImproperlyConfigured
+
+from dotenv import load_dotenv
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
+
+load_dotenv(BASE_DIR / '.env')
+
+
+def get_env(name):
+    value = os.environ.get(name)
+    if not value:
+        raise ImproperlyConfigured(f'Missing required environment variable: {name}')
+    return value
 
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-5*!7mvqevf(41ev-he0=y6k^@d#e8_sczqg5=437gdup_0d@8p'
+SECRET_KEY = get_env('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = os.environ.get('DEBUG', 'False') == 'True'
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = [host.strip() for host in os.environ.get('ALLOWED_HOSTS', '').split(',') if host.strip()]
 
 
 # Application definition
@@ -80,11 +95,11 @@ WSGI_APPLICATION = 'bookland.wsgi.application'
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.postgresql",
-        "NAME": "db_bookland",
-        "USER": "postgres",
-        "PASSWORD": "123123",
-        "HOST": "127.0.0.1",
-        "PORT": "5432",
+        "NAME": get_env('DB_NAME'),
+        "USER": get_env('DB_USER'),
+        "PASSWORD": get_env('DB_PASSWORD'),
+        "HOST": get_env('DB_HOST'),
+        "PORT": get_env('DB_PORT'),
     }
 }
 
@@ -106,8 +121,11 @@ AUTH_PASSWORD_VALIDATORS = [
         'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
     },
 ]
-AUTH_USER_MODEL = 'accounts.User'
 
+AUTH_USER_MODEL = 'accounts.User'
+LOGIN_URL = 'accounts:login'
+LOGIN_REDIRECT_URL = 'core:home'
+LOGOUT_REDIRECT_URL = 'core:home'
 
 
 # Internationalization

@@ -1,0 +1,67 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+		<div class="page-content">
+			{% include 'partials/page_banner.html' with title='Registration' %}
+			
+			<!-- contact area -->
+			<section class="content-inner shop-account">
+				<!-- Product -->
+				<div class="container">
+					<div class="row justify-content-center">
+						<div class="col-lg-6 col-md-6 mb-4">
+							<div class="login-area">
+								<form method="post" action="{% url 'accounts:register' %}">
+									{% csrf_token %}
+									<h4 class="text-secondary">Registration</h4>
+									<p class="font-weight-600">If you don't have an account with us, please Registration.</p>
+									{% if form.non_field_errors %}
+									<div class="alert alert-danger">
+										{% for error in form.non_field_errors %}<div>{{ error }}</div>{% endfor %}
+									</div>
+									{% endif %}
+									<div class="mb-4">
+										<label class="label-title" for="{{ form.username.id_for_label }}">Username *</label>
+										{{ form.username }}
+										{% for error in form.username.errors %}
+										<div class="invalid-feedback d-block">{{ error }}</div>
+										{% endfor %}
+									</div>
+									<div class="mb-4">
+										<label class="label-title" for="{{ form.email.id_for_label }}">Email address *</label>
+										{{ form.email }}
+										{% for error in form.email.errors %}
+										<div class="invalid-feedback d-block">{{ error }}</div>
+										{% endfor %}
+									</div>
+									<div class="mb-4">
+										<label class="label-title" for="{{ form.password1.id_for_label }}">Password *</label>
+										{{ form.password1 }}
+										{% for error in form.password1.errors %}
+										<div class="invalid-feedback d-block">{{ error }}</div>
+										{% endfor %}
+									</div>
+									<div class="mb-4">
+										<label class="label-title" for="{{ form.password2.id_for_label }}">Confirm Password *</label>
+										{{ form.password2 }}
+										{% for error in form.password2.errors %}
+										<div class="invalid-feedback d-block">{{ error }}</div>
+										{% endfor %}
+									</div>
+									<div class="mb-5">
+										<small>Your personal data will be used to support your experience throughout this website, to manage access to your account, and for other purposes described in our <a href="privacy-policy.html">privacy policy</a>.</small>
+									</div>
+									<div class="text-left">
+										<button type="submit" class="btn btn-primary btnhover w-100 me-2">Register</button>
+									</div>
+								</form>
+							</div>
+						</div>
+					</div>
+				</div>
+				<!-- Product END -->
+			</section>
+			<!-- contact area End--> 
+		</div>
+{% endblock %}
