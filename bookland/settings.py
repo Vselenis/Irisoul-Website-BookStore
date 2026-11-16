@@ -11,11 +11,9 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 
 import os
-
 from pathlib import Path
 
 from django.core.exceptions import ImproperlyConfigured
-
 from dotenv import load_dotenv
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -47,6 +45,7 @@ ALLOWED_HOSTS = [host.strip() for host in os.environ.get('ALLOWED_HOSTS', '').sp
 PROJECT_APPS = [
     'core',
     'accounts',
+    'products',
 ]
 
 INSTALLED_APPS = [

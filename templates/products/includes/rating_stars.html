@@ -1,0 +1,5 @@
+<ul class="dz-rating">
+	{% for star in '12345' %}
+	<li><i class="flaticon-star {% if forloop.counter <= stars %}text-yellow{% else %}text-muted{% endif %}"></i></li>
+	{% endfor %}
+</ul>

@@ -1,0 +1,59 @@
+						<div class="col-md-12 col-sm-12">
+							<div class="dz-shop-card style-2">
+								<div class="dz-media">
+									<img src="{{ product.image.url }}" alt="{{ product.title }}">
+								</div>
+								<div class="dz-content">
+									<div class="dz-header">
+										<div>
+											<ul class="dz-tags">
+												{% for category in product.categories.all %}
+												<li><a href="?category={{ category.slug }}">{{ category.name|upper }}{% if not forloop.last %},{% endif %}</a></li>
+												{% endfor %}
+											</ul>
+											<h4 class="title mb-0"><a href="javascript:void(0);">{{ product.title }}</a></h4>
+										</div>
+										<div class="price">
+											<span class="price-num text-primary">${{ product.current_price }}</span>
+											{% if product.has_promo %}<del>${{ product.price }}</del>{% endif %}
+										</div>
+									</div>
+
+									<div class="dz-body">
+										<div class="dz-rating-box">
+											<div>
+												<p class="dz-para">{{ product.description }}</p>
+												{% if product.has_promo %}
+												<div>
+													<span class="badge">{{ product.discount_percent }}% OFF</span>
+												</div>
+												{% endif %}
+											</div>
+											<div class="review-num">
+												<h4>{{ product.avg_rating|floatformat:1 }}</h4>
+												{% include 'products/includes/rating_stars.html' with stars=product.rating_stars %}
+												<span><a href="javascript:void(0);"> {{ product.review_count }} Review{{ product.review_count|pluralize }}</a></span>
+											</div>
+										</div>
+										<div class="rate">
+											{% if product.product_type == 'book' %}
+											<ul class="book-info">
+												<li><span>Writen by</span>{{ product.book.authors.all|join:', ' }}</li>
+												<li><span>Publisher</span>{{ product.book.publisher.name }}</li>
+												<li><span>Year</span>{{ product.book.publication_date|date:'Y' }}</li>
+											</ul>
+											{% endif %}
+											<div class="d-flex">
+												<a href="shop-cart.html" class="btn btn-secondary btnhover btnhover2"><i class="flaticon-shopping-cart-1 m-r10"></i> Add to cart</a>
+												<div class="bookmark-btn style-1">
+													<input class="form-check-input" type="checkbox" id="bookmark-{{ product.pk }}">
+													<label class="form-check-label" for="bookmark-{{ product.pk }}">
+														<i class="flaticon-heart"></i>
+													</label>
+												</div>
+											</div>
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
