@@ -1,12 +1,13 @@
 from math import ceil, floor
-
-from django.db.models import Avg, Count, Exists, Max, Min, OuterRef
+from django.db import IntegrityError,transaction
+from django.db.models import Avg, Count, Exists, Max, Min, OuterRef,Prefetch
 from django.db.models.functions import Coalesce, Round
-from django.shortcuts import render
-from django.views.generic import ListView
+from django.shortcuts import redirect, render
+from django.urls import reverse
+from django.views.generic import ListView, DetailView
 
-from .forms import ProductFilterForm
-from .models import Category, Product
+from .forms import ProductFilterForm,ReviewForm
+from .models import Category, Product,Review
 
 # Create your views here.
 def with_ratings(queryset):
@@ -113,3 +114,83 @@ class ProductListView(ListView):
             'reset_url': self.request.path + ('?view=grid' if self.view_mode == 'grid' else ''),
         })
         return context
+
+
+class ProductDetailView(DetailView):
+    template_name = 'products/product_detail.html'
+    context_object_name = 'product'
+    product_type = None
+    related_count = 3
+
+
+    def get_queryset(self):
+        return (
+            with_ratings(Product.objects.filter(product_type=self.product_type))
+            .select_related('book__publisher')
+            .prefetch_related(
+                'categories',
+                'book__authors',
+                Prefetch('reviews', queryset=Review.objects.select_related('user')),
+            )
+        )
+
+
+    def get_related_products(self):
+        category_ids = [category.pk for category in self.object.categories.all()]
+        if not category_ids:
+            return []
+        return list(
+            Product.objects.filter(product_type=self.product_type)
+            .exclude(pk=self.object.pk)
+            .filter(
+                Exists(
+                    Product.categories.through.objects.filter(
+                        product=OuterRef('pk'),
+                        category_id__in=category_ids,
+                    )
+                )
+            )
+            .prefetch_related('categories')
+            .order_by('?')[:self.related_count]
+        )
+
+
+    def has_reviewed(self):
+        user = self.request.user
+        return user.is_authenticated and any(review.user_id == user.pk for review in self.object.reviews.all())
+
+
+    def get_context_data(self, **kwargs):
+        kwargs.setdefault('form', ReviewForm())
+        kwargs.setdefault('login_required', False)
+        kwargs.setdefault('already_reviewed', self.has_reviewed())
+        context = super().get_context_data(**kwargs)
+        context.update({
+            'reviews': self.object.reviews.all(),
+            'related_products': self.get_related_products(),
+            'list_url': reverse(f'products:{self.object.product_type}-list'),
+        })
+        return context
+
+
+    def post(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        if not request.user.is_authenticated:
+            form = ReviewForm(initial={
+                'rating': request.POST.get('rating'),
+                'comment': request.POST.get('comment', ''),
+            })
+            return self.render_to_response(self.get_context_data(form=form, login_required=True))
+        if self.has_reviewed():
+            return self.render_to_response(self.get_context_data())
+        form = ReviewForm(request.POST)
+        if not form.is_valid():
+            return self.render_to_response(self.get_context_data(form=form))
+        form.instance.product=self.object
+        form.instance.user=request.user
+        try:
+            with transaction.atomic():
+                form.save()
+        except IntegrityError:
+            return self.render_to_response(self.get_context_data(already_reviewed=True))
+        return redirect(f'{self.object.get_absolute_url()}#reviews')

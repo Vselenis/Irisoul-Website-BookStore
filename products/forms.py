@@ -1,5 +1,8 @@
 from django import forms
 
+from .models import Review
+
+
 
 class ProductFilterForm(forms.Form):
     SORT_CHOICES = [
@@ -20,3 +23,16 @@ class ProductFilterForm(forms.Form):
     def __init__(self, *args, categories=(), **kwargs):
         super().__init__(*args, **kwargs)
         self.fields['category'].choices = [(category.slug, category.name) for category in categories]
+
+
+class ReviewForm(forms.ModelForm):
+    rating = forms.TypedChoiceField(
+        choices=[(value, value) for value in range(1, 6)],
+        coerce=int,
+        error_messages={'required': 'Please select a rating.'},
+    )
+
+    class Meta:
+        model=Review
+        fields=['rating', 'comment']
+        error_messages={'comment': {'required': 'Please write a comment.'}}

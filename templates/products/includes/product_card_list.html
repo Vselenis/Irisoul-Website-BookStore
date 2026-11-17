@@ -1,7 +1,7 @@
 						<div class="col-md-12 col-sm-12">
 							<div class="dz-shop-card style-2">
 								<div class="dz-media">
-									<img src="{{ product.image.url }}" alt="{{ product.title }}">
+									<a href="{{ product.get_absolute_url }}"><img src="{{ product.image.url }}" alt="{{ product.title }}"></a>
 								</div>
 								<div class="dz-content">
 									<div class="dz-header">
@@ -11,11 +11,11 @@
 												<li><a href="?category={{ category.slug }}">{{ category.name|upper }}{% if not forloop.last %},{% endif %}</a></li>
 												{% endfor %}
 											</ul>
-											<h4 class="title mb-0"><a href="javascript:void(0);">{{ product.title }}</a></h4>
+											<h4 class="title mb-0"><a href="{{ product.get_absolute_url }}">{{ product.title }}</a></h4>
 										</div>
 										<div class="price">
-											<span class="price-num text-primary">${{ product.current_price }}</span>
-											{% if product.has_promo %}<del>${{ product.price }}</del>{% endif %}
+											<span class="price-num text-primary">{{ product.current_price }}&nbsp;€</span>
+											{% if product.has_promo %}<del>{{ product.price }}&nbsp;€</del>{% endif %}
 										</div>
 									</div>
 
@@ -32,7 +32,7 @@
 											<div class="review-num">
 												<h4>{{ product.avg_rating|floatformat:1 }}</h4>
 												{% include 'products/includes/rating_stars.html' with stars=product.rating_stars %}
-												<span><a href="javascript:void(0);"> {{ product.review_count }} Review{{ product.review_count|pluralize }}</a></span>
+												<span><a href="{{ product.get_absolute_url }}#reviews"> {{ product.review_count }} Review{{ product.review_count|pluralize }}</a></span>
 											</div>
 										</div>
 										<div class="rate">

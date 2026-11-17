@@ -1,0 +1,233 @@
+{% extends 'base.html' %}
+{% load static l10n %}
+
+{% block extra_css %}
+	<link rel="stylesheet" type="text/css" href="{% static 'icons/themify/themify-icons.css' %}">
+	<link rel="stylesheet" type="text/css" href="{% static 'css/shop.css' %}">
+{% endblock %}
+
+{% block content %}
+	<div class="page-content bg-grey">
+		<section class="content-inner-1">
+			<div class="container">
+				<div class="row book-grid-row style-4 m-b60">
+					<div class="col">
+						<div class="dz-box">
+							<div class="dz-media">
+								<img src="{{ product.image.url }}" alt="{{ product.title }}">
+							</div>
+							<div class="dz-content">
+								<div class="dz-header">
+									<h3 class="title">{{ product.title }}</h3>
+									<div class="shop-item-rating">
+										<div class="d-lg-flex d-sm-inline-flex d-flex align-items-center">
+											{% include 'products/includes/rating_stars.html' with stars=product.rating_stars %}
+											<h6 class="m-b0">{{ product.avg_rating|floatformat:1 }}</h6>
+										</div>
+									</div>
+								</div>
+								<div class="dz-body">
+									{% if product.product_type == 'book' %}
+									<div class="book-detail">
+										<ul class="book-info">
+											<li>
+												<div class="writer-info">
+													<div>
+														<span>Writen by</span>{{ product.book.authors.all|join:', ' }}
+													</div>
+												</div>
+											</li>
+											<li><span>Publisher</span>{{ product.book.publisher.name }}</li>
+											<li><span>Year</span>{{ product.book.publication_date|date:'Y' }}</li>
+										</ul>
+									</div>
+									{% endif %}
+									<div class="text-1">
+										<p class="mb-0 product-description-text is-clamped" id="product-description">{{ product.description|linebreaksbr }}</p>
+										<a href="javascript:void(0);" class="description-toggle" id="description-toggle" hidden>View more</a>
+									</div>
+									<div class="book-footer">
+										<div class="price">
+											<h5 data-unit-price="{{ product.current_price|unlocalize }}">{{ product.current_price }}&nbsp;€</h5>
+											{% if product.has_promo %}<p class="p-lr10" data-unit-price="{{ product.price|unlocalize }}">{{ product.price }}&nbsp;€</p>{% endif %}
+										</div>
+										<div class="product-num">
+											<div class="quantity btn-quantity style-1 me-3">
+												<input id="demo_vertical2" type="text" value="1" name="demo_vertical2" data-bts-min="1" data-bts-max="100"/>
+											</div>
+											<a href="shop-cart.html" class="btn btn-primary btnhover btnhover2"><i class="flaticon-shopping-cart-1"></i> <span>Add to cart</span></a>
+											<div class="bookmark-btn style-1 d-none d-sm-block">
+												<input class="form-check-input" type="checkbox" id="flexCheckDefault1">
+												<label class="form-check-label" for="flexCheckDefault1">
+													<i class="flaticon-heart"></i>
+												</label>
+											</div>
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+				
+				<div class="row">
+					<div class="col-xl-8">
+						<div class="product-description tabs-site-button" id="reviews">
+                            <ul class="nav nav-tabs">
+                                <li><a data-bs-toggle="tab" href="#graphic-design-1" class="active">Product Details</a></li>
+                                <li><a data-bs-toggle="tab" href="#developement-1">Customer Reviews</a></li>
+                            </ul>
+							<div class="tab-content">
+								<div id="graphic-design-1" class="tab-pane show active">
+                                    <table class="table border book-overview">
+										<tr>
+											<th>Book Title</th>
+											<td>{{ product.title }}</td>
+										</tr>
+										{% if product.product_type == 'book' %}
+										<tr>
+											<th>Author</th>
+											<td>{{ product.book.authors.all|join:', ' }}</td>
+										</tr>
+										<tr>
+											<th>ISBN</th>
+											<td>{{ product.book.isbn }}</td>
+										</tr>
+										<tr>
+											<th>Language</th>
+											<td>{{ product.book.language }}</td>
+										</tr>
+										<tr>
+											<th>Book Format</th>
+											<td>{{ product.book.get_book_format_display }}</td>
+										</tr>
+										<tr>
+											<th>Pages</th>
+											<td>{{ product.book.pages }}</td>
+										</tr>
+										<tr>
+											<th>Date Published</th>
+											<td>{{ product.book.publication_date|date:'F j, Y' }}</td>
+										</tr>
+										<tr>
+											<th>Publisher</th>
+											<td>{{ product.book.publisher.name }}</td>
+										</tr>
+										{% endif %}
+										<tr class="tags">
+											<th>Category</th>
+											<td>
+												{% for category in product.categories.all %}
+												<a href="{{ list_url }}?category={{ category.slug }}" class="badge">{{ category.name }}</a>
+												{% endfor %}
+											</td>
+										</tr>
+                                    </table>
+                                </div>
+								<div id="developement-1" class="tab-pane">
+                                    <div class="clear" id="comment-list">
+										<div class="post-comments comments-area style-1 clearfix">
+											<h4 class="comments-title">{{ product.review_count }} REVIEW{{ product.review_count|pluralize:'S' }}</h4>
+											<div id="comment">
+												<ol class="comment-list">
+													{% for review in reviews %}
+													<li class="comment depth-1" id="comment-{{ review.pk }}">
+														<div class="comment-body">
+															<div class="comment-author vcard">
+																<span class="avatar review-avatar"><i class="fa-solid fa-user"></i></span>
+																<cite class="fn">{{ review.user.username }}</cite> <span class="says">says:</span>
+																<div class="comment-meta">
+																	<span>{{ review.created_at|date:'F j, Y' }}</span>
+																</div>
+															</div>
+															{% include 'products/includes/rating_stars.html' with stars=review.rating %}
+															<div class="comment-content dlab-page-text">
+																<p>{{ review.comment|linebreaksbr }}</p>
+															</div>
+														</div>
+													</li>
+													{% endfor %}
+											 </ol>
+										  </div>
+										  <div class="default-form comment-respond style-1" id="respond">
+											 <h4 class="comment-reply-title" id="reply-title">Give us Feedback</h4>
+											 <div class="clearfix">
+												{% if already_reviewed %}
+												<p class="mb-0">You have already reviewed this {{ product.get_product_type_display|lower }}.</p>
+												{% else %}
+												{% if login_required %}
+												<div class="alert alert-danger">Please <a href="{% url 'accounts:login' %}?next={{ request.path|urlencode }}%23reviews" class="alert-link">login</a> to your account first.</div>
+												{% endif %}
+												<form method="post" action="{{ request.path }}#reviews" id="comments_form" class="comment-form" novalidate>
+													{% csrf_token %}
+													<div class="comment-form-rating">
+														<div class="review-rating">
+															{% for value in '54321' %}
+															<input type="radio" name="rating" value="{{ value }}" id="rating-{{ value }}"{% if form.rating.value|stringformat:'s' == value %} checked{% endif %}>
+															<label for="rating-{{ value }}" title="{{ value }}"><i class="flaticon-star"></i></label>
+															{% endfor %}
+														</div>
+														{% for error in form.rating.errors %}
+														<div class="invalid-feedback d-block">{{ error }}</div>
+														{% endfor %}
+													</div>
+													<p class="comment-form-comment"><textarea id="comments" placeholder="Type Comment Here" class="form-control4" name="comment" cols="45" rows="3" required="required">{{ form.comment.value|default_if_none:'' }}</textarea>{% for error in form.comment.errors %}<span class="invalid-feedback d-block">{{ error }}</span>{% endfor %}</p>
+												   <p class="col-md-12 col-sm-12 col-xs-12 form-submit">
+													  <button id="submit" type="submit" class="submit btn btn-primary filled">
+													  Submit Now <i class="fa fa-angle-right m-l10"></i>
+													  </button>
+												   </p>
+												</form>
+												{% endif %}
+											 </div>
+										  </div>
+									   </div>
+									</div>
+									
+								</div>
+							</div>
+						</div>
+					</div>
+					{% if related_products %}
+					<div class="col-xl-4 mt-5 mt-xl-0">
+						<div class="widget">
+							<h4 class="widget-title">Related Books</h4>
+							<div class="row">
+								{% for related in related_products %}
+								<div class="col-xl-12 col-lg-6">
+									<div class="dz-shop-card style-5{% if forloop.last %} mb-0{% endif %}">
+										<div class="dz-media">
+											<a href="{{ related.get_absolute_url }}"><img src="{{ related.image.url }}" alt="{{ related.title }}"></a>
+										</div>
+										<div class="dz-content">
+											<h5 class="subtitle"><a href="{{ related.get_absolute_url }}">{{ related.title }}</a></h5>
+											<ul class="dz-tags">
+												{% for category in related.categories.all %}
+												<li>{{ category.name|upper }}{% if not forloop.last %},{% endif %}</li>
+												{% endfor %}
+											</ul>
+											<div class="price">
+												<span class="price-num">{{ related.current_price }}&nbsp;€</span>
+												{% if related.has_promo %}<del>{{ related.price }}&nbsp;€</del>{% endif %}
+											</div>
+											<a href="shop-cart.html" class="btn btn-outline-primary btn-sm btnhover btnhover2"><i class="flaticon-shopping-cart-1 me-2"></i> Add to cart</a>
+										</div>
+									</div>
+								</div>
+								{% endfor %}
+							</div>
+						</div>
+					</div>
+					{% endif %}
+				</div>
+			</div>
+		</section>
+		
+		{% include 'partials/bottom_sections.html' %}
+	</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'vendor/bootstrap-touchspin/bootstrap-touchspin.js' %}"></script><!-- BOOTSTRAP TOUCHSPIN JS -->
+<script src="{% static 'js/shop.js' %}"></script>
+{% endblock %}
