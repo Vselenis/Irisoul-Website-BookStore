@@ -1,0 +1,85 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+	<div class="page-content bg-white">
+		{% include 'partials/page_banner.html' with title='About us' %}
+		
+		<!--Our Mission Section-->
+		<section class="content-inner overlay-white-middle">
+			<div class="container">
+				<div class="row about-style1 align-items-center">
+					<div class="col-lg-6 m-b30">
+						<div class="about-thumb aos-item" data-aos="fade-up" data-aos-duration="800" data-aos-delay="200">
+							<img src="{% static 'images/about/irisoul-eye.jpg' %}" width="983" height="958" alt="Colorful eye with a vivid iris">
+						</div>
+					</div>
+					<div class="col-lg-6 m-b30 aos-item" data-aos="fade-up" data-aos-duration="800" data-aos-delay="500">
+						<div class="about-content px-lg-4">
+							<div class="section-head style-1 mb-0">
+								<h2 class="title">About IriSoul</h2>
+								<p>Welcome to IriSoul, an online destination for book lovers, curious minds, and people who enjoy discovering new things.</p>
+								<p>The name IriSoul brings together two ideas: Iris and Soul. The iris gives the eye its distinctive color, symbolizing the different perspectives and interpretations through which we experience the world. The soul represents our inner thoughts, feelings, imagination, and individuality.</p>
+								<p>Together, they reflect our belief that every story has its own colors and that we should celebrate the beauty of seeing the world from different perspectives.</p>
+								<p class="mb-0">Our goal is to bring together a diverse selection of books, board games, and other products that inspire curiosity, encourage exploration, and create enjoyable experiences.</p>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</section>
+		
+		<!--icon-box3 section-->
+		<section class="content-inner-1 bg-light">
+			<div class="container">
+				<div class="row">
+					<div class="col-lg-4 col-md-6 d-flex">
+						<div class="icon-bx-wraper style-3 m-b30 w-100">
+							<div class="icon-lg m-b20 d-block">
+								<i class="fa-solid fa-bullseye icon-cell"></i>
+							</div>
+							<div class="icon-content">
+								<h4 class="title text-center">Mission</h4>
+								<p>Our mission is to make discovering and enjoying books, board games, and other inspiring products simple and accessible.</p>
+								<p>We aim to offer a diverse selection, competitive prices, and an enjoyable shopping experience where everyone can find something that matches their interests.</p>
+								<p class="mb-0">Whether you're looking for your next favorite book, an engaging board game, or simply something new to explore, we want every visit to IriSoul to bring an opportunity for discovery.</p>
+							</div>
+						</div>
+					</div>
+					<div class="col-lg-4 col-md-6 d-flex">
+						<div class="icon-bx-wraper style-3 m-b30 w-100">
+							<div class="icon-lg m-b20 d-block">
+								<i class="fa-solid fa-eye icon-cell"></i>
+							</div>
+							<div class="icon-content">
+								<h4 class="title text-center">Vision</h4>
+								<p>Our vision is to become a recognizable online destination for people who appreciate reading, creativity, and meaningful entertainment.</p>
+								<p>We aspire to continuously expand our selection, introduce new products, and create a place where curiosity is encouraged and discovery never ends.</p>
+								<p class="mb-0">We believe that there is always another story to experience, another perspective to explore, and another world waiting to be discovered.</p>
+							</div>
+						</div>
+					</div>
+					<div class="col-lg-4 col-md-12 d-flex">
+						<div class="icon-bx-wraper style-3 m-b30 w-100">
+							<div class="icon-lg m-b20 d-block">
+								<i class="fa-solid fa-compass icon-cell"></i>
+							</div>
+							<div class="icon-content">
+								<h4 class="title text-center">Explore</h4>
+								<ul class="list-check primary">
+									<li><strong>Books:</strong> A diverse selection of fiction, fantasy, romance, thrillers, business, personal development, and many other genres.</li>
+									<li><strong>Board Games:</strong> Different types of games for strategy lovers, casual players, friends, and families.</li>
+									<li><strong>Our Blog:</strong> A space for book-related articles, recommendations, reading inspiration, and interesting content for curious minds.</li>
+									<li><strong>More to Discover:</strong> We aim to introduce additional products related to books, hobbies, and entertainment as our collection grows.</li>
+								</ul>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</section>
+		
+		{% include 'partials/bottom_sections.html' %}
+		
+	</div>
+{% endblock %}
