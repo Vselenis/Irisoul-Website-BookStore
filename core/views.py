@@ -7,3 +7,6 @@ class HomeView(TemplateView):
 
 class AboutView(TemplateView):
     template_name = 'core/about.html'
+
+class TermsPrivacyView(TemplateView):
+    template_name = 'core/terms_privacy.html'
