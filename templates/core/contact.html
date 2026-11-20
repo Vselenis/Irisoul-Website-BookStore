@@ -1,0 +1,99 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+	<div class="page-content">
+		{% include 'partials/page_banner.html' with title='Contact Us' %}
+		<div class="content-inner-2 pt-0">
+			<div class="map-iframe">
+				<iframe src="https://maps.google.com/maps?q=ul.+Tintyava+15-17,+1113+Sofia,+Bulgaria&amp;z=15&amp;hl=en&amp;output=embed" title="IriSoul location in Sofia, Bulgaria" loading="lazy" referrerpolicy="no-referrer-when-downgrade" style="border:0; width:100%; min-height:100%; margin-bottom: -8px;" allowfullscreen></iframe>
+			</div>
+		</div>
+		
+		<section class="contact-wraper1" style="background-image: url({% static 'images/background/bg2.jpg' %});">
+			<div class="container">
+				<div class="row">
+					<div class="col-lg-5">
+						<div class="contact-info">
+							<div class="section-head text-white style-1">
+								<h3 class="title text-white">Get in Touch</h3>
+								<p>If you have any questions, please feel free to contact us using the email addresses listed below. Alternatively, you can submit your enquiry directly through the contact form.</p>
+							</div>
+							<ul class="no-margin">
+								<li class="icon-bx-wraper text-white left m-b30">
+									<div class="icon-md">
+										<span class="icon-cell text-primary">
+											<svg xmlns="http://www.w3.org/2000/svg" width="50" height="50" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-map-pin"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
+										</span>
+									</div>
+									<div class="icon-content">
+										<h5 class=" dz-tilte text-white">Our Address</h5>
+										<p>Bulgaria, Sofia, Dianabad Residential District, 15&ndash;17 Tintjava Street, Postal Code 1113</p>
+									</div>
+								</li>
+								<li class="icon-bx-wraper text-white left m-b30">
+									<div class="icon-md">
+										<span class="icon-cell text-primary">
+											<svg xmlns="http://www.w3.org/2000/svg" width="50" height="50" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-mail"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
+										</span>
+									</div>
+									<div class="icon-content">
+										<h5 class="dz-tilte text-white">Our Email</h5>
+										<p><a href="mailto:info@irisoul.com">info@irisoul.com</a> (general questions)<br>
+										<a href="mailto:support@irisoul.com">support@irisoul.com</a> (technical issues)<br>
+										<a href="mailto:partner@irisoul.com">partner@irisoul.com</a> (business/partnership)</p>
+									</div>
+								</li>
+							</ul>
+						</div>
+					</div>
+					<div class="col-lg-7 m-b40">
+						<div class="contact-area1 m-r20 m-md-r0">
+							<div class="section-head style-1">
+								<h6 class="sub-title text-primary text-center">CONTACT US</h6>
+							</div>
+							<form class="dz-form" method="post" action="{% url 'core:contact' %}">
+								{% csrf_token %}
+								<div class="dzFormMsg">
+									{% for message in messages %}
+									<div class="alert alert-success">{{ message }}</div>
+									{% endfor %}
+								</div>
+								<div class="input-group has-validation">
+									{{ form.full_name }}
+									{% for error in form.full_name.errors %}
+									<div class="invalid-feedback d-block">{{ error }}</div>
+									{% endfor %}
+								</div>
+								<div class="input-group has-validation">
+									{{ form.email }}
+									{% for error in form.email.errors %}
+									<div class="invalid-feedback d-block">{{ error }}</div>
+									{% endfor %}
+								</div>
+								<div class="input-group has-validation">
+									{{ form.phone }}
+									{% for error in form.phone.errors %}
+									<div class="invalid-feedback d-block">{{ error }}</div>
+									{% endfor %}
+								</div>
+								<div class="input-group has-validation">
+									{{ form.message }}
+									{% for error in form.message.errors %}
+									<div class="invalid-feedback d-block">{{ error }}</div>
+									{% endfor %}
+								</div>
+								<div>
+									<button name="submit" type="submit" value="submit" class="btn w-100 btn-primary btnhover">SUBMIT</button>
+								</div>
+							</form>
+						</div>
+					</div>
+				</div>
+			</div>
+		</section>
+		
+		{% include 'partials/bottom_sections.html' %}
+		
+	</div>
+{% endblock %}
