@@ -1,0 +1,18 @@
+<div class="dz-shop-card style-5{% if last %} mb-0{% endif %}">
+	<div class="dz-media">
+		<a href="{{ product.get_absolute_url }}"><img src="{{ product.image.url }}" alt="{{ product.title }}"></a>
+	</div>
+	<div class="dz-content">
+		<h5 class="subtitle"><a href="{{ product.get_absolute_url }}">{{ product.title }}</a></h5>
+		<ul class="dz-tags">
+			{% for category in product.categories.all %}
+			<li>{{ category.name|upper }}{% if not forloop.last %},{% endif %}</li>
+			{% endfor %}
+		</ul>
+		<div class="price">
+			<span class="price-num">{{ product.current_price }}&nbsp;€</span>
+			{% if product.has_promo %}<del>{{ product.price }}&nbsp;€</del>{% endif %}
+		</div>
+		<a href="shop-cart.html" class="btn btn-outline-primary btn-sm btnhover btnhover2"><i class="flaticon-shopping-cart-1 me-2"></i> Add to cart</a>
+	</div>
+</div>

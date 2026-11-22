@@ -1,0 +1,128 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block extra_css %}
+	<link rel="stylesheet" type="text/css" href="{% static 'css/shop.css' %}">
+{% endblock %}
+
+{% block content %}
+	<div class="page-content">
+		{% include 'partials/page_banner.html' with title='Blog' %}
+
+		<!-- Blog Large -->
+		<section class="content-inner-1 bg-img-fix">
+			<div class="container">
+				<div class="row">
+					<div class="col-xl-8 col-lg-8">
+						<!-- blog start -->
+						<div class="dz-blog blog-single style-1">
+							<div class="dz-media rounded-md">
+								<img src="{{ post.image.url }}" alt="{{ post.title }}">
+							</div>
+							<div class="dz-info">
+								<div class="dz-meta  border-0 py-0 mb-2">
+									<ul class="border-0 pt-0">
+										<li class="post-date"><i class="far fa-calendar fa-fw m-r10"></i>{{ post.published_at|date:'j F, Y' }}</li>
+										<li class="post-author"><i class="far fa-user fa-fw m-r10"></i>By {{ post.author_name }}</li>
+									</ul>
+								</div>
+								<h4 class="dz-title">{{ post.title }}</h4>
+								<div class="dz-post-text">
+									{{ post.content|linebreaks }}
+								</div>
+								{% with tags=post.tags.all %}
+								{% if tags %}
+								<div class="dz-meta meta-bottom border-top">
+									<div class="post-tags">
+										<strong>Tags:</strong>
+										{% for tag in tags %}
+										<a href="{% url 'blog:post-list' %}?tag={{ tag.slug|urlencode }}">{{ tag.name }}</a>{% if not forloop.last %},{% endif %}
+										{% endfor %}
+									</div>
+								</div>
+								{% endif %}
+								{% endwith %}
+							</div>
+						</div>
+						{% if related_posts %}
+						<div class="row extra-blog style-1">
+							<div class="col-lg-12">
+								<h4 class="blog-title">RELATED BLOGS</h4>
+							</div>
+							{% for related in related_posts %}
+							<div class="col-lg-6 col-md-6">
+								<div class="dz-blog style-1 bg-white m-b30">
+									<div class="dz-media">
+										<a href="{{ related.get_absolute_url }}"><img src="{{ related.image.url }}" alt="{{ related.title }}"></a>
+									</div>
+									<div class="dz-info">
+										<h5 class="dz-title">
+											<a href="{{ related.get_absolute_url }}">{{ related.title }}</a>
+										</h5>
+										<p class="m-b0">{{ related.content|truncatewords:15 }}</p>
+										<div class="dz-meta meta-bottom">
+											<ul class="">
+												<li class="post-date"><i class="far fa-calendar fa-fw m-r10"></i>{{ related.published_at|date:'j F, Y' }}</li>
+												<li class="post-author"><i class="far fa-user fa-fw m-r10"></i>By {{ related.author_name }}</li>
+											</ul>
+										</div>
+									</div>
+								</div>
+							</div>
+							{% endfor %}
+						</div>
+						{% endif %}
+						<div class="clear" id="comment-list">
+							<div class="post-comments comments-area style-1 clearfix">
+								<h4 class="comments-title">{{ comment_count }} COMMENT{{ comment_count|pluralize:'S' }}</h4>
+								<div id="comment">
+									<ol class="comment-list">
+										{% for comment in comments %}
+										<li class="comment depth-1" id="comment-{{ comment.pk }}">
+											{% include 'blog/includes/comment_body.html' %}
+											{% with replies=comment.replies.all %}
+											{% if replies %}
+											<ol class="children">
+												{% for reply in replies %}
+												<li class="comment depth-2" id="comment-{{ reply.pk }}">
+													{% include 'blog/includes/comment_body.html' with comment=reply %}
+												</li>
+												{% endfor %}
+											</ol>
+											{% endif %}
+											{% endwith %}
+										</li>
+										{% endfor %}
+									</ol>
+								</div>
+								<div class="default-form comment-respond style-1" id="respond">
+									<h4 class="comment-reply-title" id="reply-title">LEAVE A REPLY{% if reply_to and user.is_authenticated %} <small>Replying to {{ reply_to.user.username }} &middot; <a rel="nofollow" id="cancel-comment-reply-link" href="{{ post.get_absolute_url }}#respond">Cancel reply</a></small>{% endif %}</h4>
+									<div class="clearfix">
+										{% if user.is_authenticated %}
+										<form method="post" action="{{ post.get_absolute_url }}#respond" id="comments_form" class="comment-form" novalidate>
+											{% csrf_token %}
+											{% if reply_to %}<input type="hidden" name="reply_to" value="{{ reply_to.pk }}">{% endif %}
+											<p class="comment-form-comment"><textarea id="comments" placeholder="Type a Comment Here" class="form-control4" name="content" cols="45" rows="3" maxlength="2000" required="required">{{ form.content.value|default_if_none:'' }}</textarea>{% for error in form.content.errors %}<span class="invalid-feedback d-block">{{ error }}</span>{% endfor %}</p>
+											<p class="col-md-12 col-sm-12 col-xs-12 form-submit">
+												<button id="submit" type="submit" class="submit btn btn-primary btnhover3 filled">
+												Submit <i class="fa fa-angle-right m-l10"></i>
+												</button>
+											</p>
+										</form>
+										{% else %}
+										<div class="alert alert-info mb-0">Please <a href="{% url 'accounts:login' %}?next={{ request.path|urlencode }}%23respond" class="alert-link">login</a> or <a href="{% url 'accounts:register' %}" class="alert-link">register</a> to leave a reply.</div>
+										{% endif %}
+									</div>
+								</div>
+							</div>
+						</div>
+						<!-- blog END -->
+					</div>
+					<div class="col-xl-4 col-lg-4">
+						{% include 'blog/includes/sidebar.html' %}
+					</div>
+				</div>
+			</div>
+		</section>
+	</div>
+{% endblock %}

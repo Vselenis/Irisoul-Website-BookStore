@@ -46,6 +46,7 @@ PROJECT_APPS = [
     'core',
     'accounts',
     'products',
+    'blog',
 ]
 
 INSTALLED_APPS = [

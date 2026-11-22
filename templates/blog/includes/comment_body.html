@@ -1,0 +1,19 @@
+<div class="comment-body">
+	<div class="comment-author vcard">
+		<span class="avatar review-avatar"><i class="fa-solid fa-user"></i></span>
+		<cite class="fn">{{ comment.user.username }}</cite> <span class="says">says:</span>
+		<div class="comment-meta">
+			<a href="#comment-{{ comment.pk }}">{{ comment.created_at|date:'F j, Y \a\t g:i A' }}</a>
+		</div>
+	</div>
+	<div class="comment-content dz-page-text">
+		{{ comment.content|linebreaks }}
+	</div>
+	<div class="reply">
+		{% if user.is_authenticated %}
+		<a rel="nofollow" class="comment-reply-link" href="?reply_to={{ comment.pk }}#respond"><i class="fa fa-reply"></i> Reply</a>
+		{% else %}
+		<a rel="nofollow" class="comment-reply-link" href="{% url 'accounts:login' %}?next={{ request.path|urlencode }}%3Freply_to%3D{{ comment.pk }}%23respond"><i class="fa fa-reply"></i> Reply</a>
+		{% endif %}
+	</div>
+</div>

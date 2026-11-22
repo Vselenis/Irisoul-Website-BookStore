@@ -1,0 +1,62 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+	<div class="page-content">
+		{% include 'partials/page_banner.html' with title='Blog' %}
+
+		<!-- Blog Large -->
+		<section class="content-inner-1 bg-img-fix">
+			<div class="container">
+				<div class="row">
+					<div class="col-xl-8 col-lg-8">
+						{% for post in posts %}
+						<div class="dz-blog style-1 bg-white m-b30">
+							<div class="dz-media dz-img-effect zoom">
+								<a href="{{ post.get_absolute_url }}"><img src="{{ post.image.url }}" alt="{{ post.title }}"></a>
+							</div>
+							<div class="dz-info">
+								<h4 class="dz-title">
+									<a href="{{ post.get_absolute_url }}">{{ post.title }}</a>
+								</h4>
+								<p class="m-b0">{{ post.content|truncatewords:35 }}</p>
+								<div class="dz-meta meta-bottom">
+									<ul class="border-0 pt-0">
+										<li class="post-date"><i class="far fa-calendar fa-fw m-r10"></i>{{ post.published_at|date:'j F, Y' }}</li>
+										<li class="post-author"><i class="far fa-user fa-fw m-r10"></i>By {{ post.author_name }}</li>
+										<li class="post-comment"><a href="{{ post.get_absolute_url }}#comment-list"><i class="far fa-comment-alt fa-fw"></i><span>{{ post.comment_count }}</span></a></li>
+									</ul>
+								</div>
+							</div>
+						</div>
+						{% empty %}
+						<p>No posts found.</p>
+						{% endfor %}
+						{% if is_paginated %}
+						<nav aria-label="Blog Pagination">
+							<ul class="pagination text-center style-1 p-t20 m-b30">
+								{% if page_obj.has_previous %}
+								<li class="page-item"><a class="page-link prev" href="{% querystring page=page_obj.previous_page_number %}">Previous</a></li>
+								{% endif %}
+								{% for number in page_range %}
+								{% if number == page_obj.paginator.ELLIPSIS %}
+								<li class="page-item disabled"><span class="page-link">{{ number }}</span></li>
+								{% else %}
+								<li class="page-item"><a class="page-link{% if number == page_obj.number %} active{% endif %}" href="{% querystring page=number %}">{{ number }}</a></li>
+								{% endif %}
+								{% endfor %}
+								{% if page_obj.has_next %}
+								<li class="page-item"><a class="page-link next" href="{% querystring page=page_obj.next_page_number %}">Next</a></li>
+								{% endif %}
+							</ul>
+						</nav>
+						{% endif %}
+					</div>
+					<div class="col-xl-4 col-lg-4">
+						{% include 'blog/includes/sidebar.html' %}
+					</div>
+				</div>
+			</div>
+		</section>
+	</div>
+{% endblock %}

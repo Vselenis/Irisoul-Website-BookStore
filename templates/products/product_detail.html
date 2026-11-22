@@ -195,24 +195,7 @@
 							<div class="row">
 								{% for related in related_products %}
 								<div class="col-xl-12 col-lg-6">
-									<div class="dz-shop-card style-5{% if forloop.last %} mb-0{% endif %}">
-										<div class="dz-media">
-											<a href="{{ related.get_absolute_url }}"><img src="{{ related.image.url }}" alt="{{ related.title }}"></a>
-										</div>
-										<div class="dz-content">
-											<h5 class="subtitle"><a href="{{ related.get_absolute_url }}">{{ related.title }}</a></h5>
-											<ul class="dz-tags">
-												{% for category in related.categories.all %}
-												<li>{{ category.name|upper }}{% if not forloop.last %},{% endif %}</li>
-												{% endfor %}
-											</ul>
-											<div class="price">
-												<span class="price-num">{{ related.current_price }}&nbsp;€</span>
-												{% if related.has_promo %}<del>{{ related.price }}&nbsp;€</del>{% endif %}
-											</div>
-											<a href="shop-cart.html" class="btn btn-outline-primary btn-sm btnhover btnhover2"><i class="flaticon-shopping-cart-1 me-2"></i> Add to cart</a>
-										</div>
-									</div>
+									{% include 'products/includes/product_card_sidebar.html' with product=related last=forloop.last %}
 								</div>
 								{% endfor %}
 							</div>
