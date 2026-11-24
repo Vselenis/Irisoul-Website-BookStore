@@ -29,7 +29,8 @@ class UserAdmin(BaseUserAdmin):
     add_form =UserAdminCreationForm
     fieldsets =(
         (None, {'fields': ('email', 'username', 'password')}),
-        (_('Personal info'), {'fields': ('first_name', 'last_name')}),
+        (_('Personal info'), {'fields': ('first_name', 'last_name','avatar')}),
+        (_('Customer details'), {'fields': ('phone', 'country', 'city', 'postcode', 'address')}),
     ) + BaseUserAdmin.fieldsets[2:]
     add_fieldsets = ((None,{'classes': ('wide',),'fields': ('email', 'username', 'usable_password', 'password1', 'password2'),},),)
     list_display = ('email', 'username', 'first_name', 'last_name', 'is_staff')

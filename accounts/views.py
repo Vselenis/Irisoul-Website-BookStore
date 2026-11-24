@@ -1,13 +1,16 @@
 from django.conf import settings
 
 from django.contrib.auth import login
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.views import LoginView
 
+from django.contrib.messages.views import SuccessMessageMixin
 from django.shortcuts import redirect, render, resolve_url
-from django.views.generic import CreateView
+from django.urls import reverse_lazy
+from django.views.generic import CreateView,UpdateView
 
-from .forms import LoginForm, RegistrationForm
-
+from .forms import LoginForm, RegistrationForm, ProfileForm
+from .models import User
 # Create your views here.
 
 
@@ -34,4 +37,24 @@ class RegisterView(CreateView):
     def form_valid(self, form):
         response = super().form_valid(form)
         login(self.request, self.object)
+        return response
+
+class ProfileView(LoginRequiredMixin, SuccessMessageMixin, UpdateView):
+    form_class=ProfileForm
+    template_name='accounts/profile.html'
+    context_object_name='profile_user'
+    success_url=reverse_lazy('accounts:profile')
+    success_message='Your profile has been updated.'
+
+
+    def get_object(self, queryset=None):
+        user = User.objects.get(pk=self.request.user.pk)
+        self.previous_avatar = user.avatar.name
+        return user
+
+
+    def form_valid(self, form):
+        response = super().form_valid(form)
+        if self.previous_avatar and self.previous_avatar != self.object.avatar.name:
+            self.object.avatar.storage.delete(self.previous_avatar)
         return response
