@@ -3,12 +3,7 @@
 									<div class="dz-media">
 										<a href="{{ product.get_absolute_url }}"><img src="{{ product.image.url }}" alt="{{ product.title }}"></a>
 									</div>
-									<div class="bookmark-btn style-2">
-										<input class="form-check-input" type="checkbox" id="bookmark-{{ product.pk }}">
-										<label class="form-check-label" for="bookmark-{{ product.pk }}">
-											<i class="flaticon-heart"></i>
-										</label>
-									</div>
+									{% include 'wishlist/includes/heart.html' with classes='bookmark-btn style-2' %}
 									<div class="dz-content">
 										<h5 class="title"><a href="{{ product.get_absolute_url }}">{{ product.title }}</a></h5>
 										<ul class="dz-tags">

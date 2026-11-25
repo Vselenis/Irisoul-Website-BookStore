@@ -1,0 +1,82 @@
+{% extends 'base.html' %}
+{% load static l10n %}
+
+{% block extra_css %}
+	<link rel="stylesheet" type="text/css" href="{% static 'icons/themify/themify-icons.css' %}">
+	<link rel="stylesheet" type="text/css" href="{% static 'css/account.css' %}">
+{% endblock %}
+
+{% block content %}
+	<div class="page-content bg-white">
+		{% include 'partials/page_banner.html' with title='Wishlist' %}
+		<section class="content-inner bg-white">
+			<div class="container">
+				<div class="row">
+					<div class="col-xl-3 col-lg-4 m-b30">
+						{% include 'accounts/includes/account_menu.html' with active='wishlist' %}
+					</div>
+					<div class="col-xl-9 col-lg-8 m-b30">
+						{% for message in messages %}
+						<div class="alert {% if message.level_tag == 'error' %}alert-danger{% else %}alert-success{% endif %} m-b20">{{ message }}</div>
+						{% endfor %}
+						{% if items %}
+						<form method="post" action="{% url 'wishlist:update' %}">
+							{% csrf_token %}
+							<div class="table-responsive">
+								<table class="table check-tbl">
+									<thead>
+										<tr>
+											<th>Product</th>
+											<th>Product name</th>
+											<th>Unit Price</th>
+											<th>Quantity</th>
+											<th>Total</th>
+											<th>Add to cart</th>
+											<th class="text-end">Close</th>
+										</tr>
+									</thead>
+									<tbody>
+										{% for item in items %}
+										<tr data-wishlist-row data-unit-price="{{ item.product.current_price|unlocalize }}">
+											<td class="product-item-img"><a href="{{ item.product.get_absolute_url }}"><img src="{{ item.product.image.url }}" alt="{{ item.product.title }}"></a></td>
+											<td class="product-item-name"><a href="{{ item.product.get_absolute_url }}">{{ item.product.title }}</a></td>
+											<td class="product-item-price">{{ item.product.current_price }}&nbsp;€{% if item.product.has_promo %} <del>{{ item.product.price }}&nbsp;€</del>{% endif %}</td>
+											<td class="product-item-quantity">
+												<div class="quantity btn-quantity style-1 me-3">
+													<input class="quantity-input" type="text" value="{{ item.quantity }}" name="quantity-{{ item.pk }}" aria-label="Quantity of {{ item.product.title }}" data-bts-min="1" data-bts-max="100"/>
+												</div>
+											</td>
+											<td class="product-item-totle" data-wishlist-total>{{ item.total }}&nbsp;€</td>
+											<td class="product-item-totle"><a href="javascript:void(0);" aria-disabled="true" class="btn btn-primary btnhover">Add To Cart</a></td>
+											<td class="product-item-close"><button type="submit" class="ti-close" form="wishlist-remove-{{ item.pk }}" aria-label="Remove {{ item.product.title }}"></button></td>
+										</tr>
+										{% endfor %}
+									</tbody>
+								</table>
+							</div>
+							<div class="text-end m-t20">
+								<button type="submit" class="btn btn-secondary btnhover">Update Wishlist</button>
+							</div>
+						</form>
+						{% for item in items %}
+						<form id="wishlist-remove-{{ item.pk }}" method="post" action="{% url 'wishlist:remove' item.product_id %}">
+							{% csrf_token %}
+						</form>
+						{% endfor %}
+						{% else %}
+						<div class="shop-bx">
+							<p class="m-b20">Your wishlist is empty.</p>
+							<a href="{% url 'products:book-list' %}" class="btn btn-primary btnhover">Browse Books</a>
+						</div>
+						{% endif %}
+					</div>
+				</div>
+			</div>
+		</section>
+	</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'vendor/bootstrap-touchspin/bootstrap-touchspin.js' %}"></script><!-- BOOTSTRAP TOUCHSPIN JS -->
+<script src="{% static 'js/wishlist.js' %}"></script>
+{% endblock %}
