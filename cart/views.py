@@ -8,11 +8,13 @@ from django.http import JsonResponse
 
 
 from django.shortcuts import get_object_or_404, redirect, resolve_url
-from django.urls import reverse
+from django.urls import reverse, reverse_lazy
+from django.utils.decorators import method_decorator
 from django.utils.http import url_has_allowed_host_and_scheme
 
 from django.views import View
-from django.views.generic import TemplateView
+from django.views.decorators.debug import sensitive_post_parameters
+from django.views.generic import TemplateView, FormView
 
 from products.models import Product
 from wishlist.forms import QUANTITY_ERROR, QuantityForm
@@ -23,7 +25,7 @@ from django.db.models.functions import Least
 
 from .models import CartItem
 from .summary import CartSummary
-
+from .forms import CARD_FIELDS, CheckoutForm
 # Create your views here.
 
 
@@ -125,3 +127,33 @@ class CartUpdateView(CartActionMixin, View):
             'free_shipping': summary.free_shipping,
             'total': f'{summary.total:.2f}',
         })
+
+
+
+@method_decorator(sensitive_post_parameters(*CARD_FIELDS), name='dispatch')
+class CheckoutView(LoginRequiredMixin, FormView):
+    template_name = 'cart/checkout.html'
+    form_class = CheckoutForm
+    success_url = reverse_lazy('cart:thank-you')
+
+    def dispatch(self, request, *args, **kwargs):
+        if request.user.is_authenticated:
+            self.summary = CartSummary.for_user(request.user)
+            if not self.summary.items:
+                return redirect('cart:cart')
+        return super().dispatch(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['cart_summary'] = self.summary
+        context['items'] = self.summary.items
+        return context
+
+
+class ThankYouView(LoginRequiredMixin, TemplateView):
+    template_name = 'cart/thank_you.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['item_count'] = self.request.user.cart_items.count()
+        return context

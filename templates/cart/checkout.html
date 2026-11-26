@@ -1,0 +1,114 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+	<div class="page-content bg-white">
+		{% include 'partials/page_banner.html' with title='Checkout' %}
+		<section class="content-inner-1">
+			<div class="container">
+				<div class="row">
+					<div class="col-lg-7 order-2 order-lg-1 m-b30">
+						<form class="shop-form" method="post">
+							{% csrf_token %}
+							<div class="widget">
+								<h4 class="widget-title">Delivery Information</h4>
+								{% for error in form.non_field_errors %}
+								<div class="alert alert-danger m-b20">{{ error }}</div>
+								{% endfor %}
+								<div class="row">
+									{% include 'cart/includes/checkout_field.html' with field=form.first_name classes='col-md-6' %}
+									{% include 'cart/includes/checkout_field.html' with field=form.last_name classes='col-md-6' %}
+								</div>
+								<div class="row">
+									{% include 'cart/includes/checkout_field.html' with field=form.address classes='col-md-6' %}
+									{% include 'cart/includes/checkout_field.html' with field=form.apartment classes='col-md-6' %}
+								</div>
+								<div class="row">
+									{% include 'cart/includes/checkout_field.html' with field=form.country classes='col-md-6' %}
+									{% include 'cart/includes/checkout_field.html' with field=form.city classes='col-md-6' %}
+								</div>
+								<div class="row">
+									{% include 'cart/includes/checkout_field.html' with field=form.postcode classes='col-md-6' %}
+									{% include 'cart/includes/checkout_field.html' with field=form.phone classes='col-md-6' %}
+								</div>
+								<div class="row">
+									{% include 'cart/includes/checkout_field.html' with field=form.company classes='col-md-6' %}
+									{% include 'cart/includes/checkout_field.html' with field=form.email classes='col-md-6' %}
+								</div>
+								{% include 'cart/includes/checkout_field.html' with field=form.notes %}
+							</div>
+							<div class="widget">
+								<h4 class="widget-title">Payment Method</h4>
+								<div class="form-group">
+									{% for radio in form.payment_method %}
+									<div class="form-check m-b10">
+										{{ radio.tag }}
+										<label class="form-check-label" for="{{ radio.id_for_label }}">{{ radio.choice_label }}</label>
+									</div>
+									{% endfor %}
+								</div>
+								<div id="card-fields"{% if form.payment_method.value != 'card' %} class="d-none"{% endif %}>
+									<div class="row">
+										{% include 'cart/includes/checkout_field.html' with field=form.card_number classes='col-md-6' %}
+										{% include 'cart/includes/checkout_field.html' with field=form.card_name classes='col-md-6' %}
+									</div>
+									<div class="row">
+										{% include 'cart/includes/checkout_field.html' with field=form.card_expiry_month classes='col-md-4' %}
+										{% include 'cart/includes/checkout_field.html' with field=form.card_expiry_year classes='col-md-4' %}
+										{% include 'cart/includes/checkout_field.html' with field=form.card_cvc classes='col-md-4' %}
+									</div>
+								</div>
+								<div class="form-group">
+									<button type="submit" class="btn btn-primary btnhover">Place an Order</button>
+								</div>
+							</div>
+						</form>
+					</div>
+					<div class="col-lg-5 order-1 order-lg-2 m-b30">
+						<div class="widget">
+							<h4 class="widget-title">Your Order</h4>
+							<div class="table-responsive">
+								<table class="table-bordered check-tbl m-b25">
+									<tbody>
+										{% for item in items %}
+										<tr>
+											<td class="product-item-img"><img src="{{ item.product.image.url }}" alt="{{ item.product.title }}"></td>
+											<td class="product-item-name">{{ item.product.title }}</td>
+											<td class="text-nowrap">&times;&nbsp;{{ item.quantity }}</td>
+											<td class="product-item-price text-nowrap">{{ item.product.current_price }}&nbsp;€</td>
+											<td class="product-price text-nowrap">{{ item.total }}&nbsp;€</td>
+										</tr>
+										{% endfor %}
+									</tbody>
+								</table>
+							</div>
+						</div>
+						<div class="widget">
+							<h4 class="widget-title">Cart Subtotal</h4>
+							<table class="table-bordered check-tbl">
+								<tbody>
+									<tr>
+										<td>Order Subtotal</td>
+										<td>{{ cart_summary.subtotal }}&nbsp;€</td>
+									</tr>
+									<tr>
+										<td>Shipping</td>
+										<td>{% if cart_summary.free_shipping %}Free Shipping{% else %}{{ cart_summary.shipping }}&nbsp;€{% endif %}</td>
+									</tr>
+									<tr>
+										<td>Total</td>
+										<td>{{ cart_summary.total }}&nbsp;€</td>
+									</tr>
+								</tbody>
+							</table>
+						</div>
+					</div>
+				</div>
+			</div>
+		</section>
+	</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/checkout.js' %}"></script>
+{% endblock %}
