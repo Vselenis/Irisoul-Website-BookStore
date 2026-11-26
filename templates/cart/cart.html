@@ -1,0 +1,101 @@
+{% extends 'base.html' %}
+{% load static l10n %}
+
+{% block extra_css %}
+	<link rel="stylesheet" type="text/css" href="{% static 'icons/themify/themify-icons.css' %}">
+	<link rel="stylesheet" type="text/css" href="{% static 'css/account.css' %}">
+{% endblock %}
+
+{% block content %}
+	<div class="page-content bg-white">
+		{% include 'partials/page_banner.html' with title='Shopping Cart' %}
+		<section class="content-inner bg-white">
+			<div class="container">
+				<div class="row">
+					<div class="col-xl-3 col-lg-4 m-b30">
+						{% include 'accounts/includes/account_menu.html' with active='cart' %}
+					</div>
+					<div class="col-xl-9 col-lg-8 m-b30">
+						{% for message in messages %}
+						<div class="alert {% if message.level_tag == 'error' %}alert-danger{% elif message.level_tag == 'warning' %}alert-warning{% else %}alert-success{% endif %} m-b20">{{ message }}</div>
+						{% endfor %}
+						{% if items %}
+						<div class="table-responsive">
+							<table class="table check-tbl">
+								<thead>
+									<tr>
+										<th>Product</th>
+										<th>Product name</th>
+										<th>Unit Price</th>
+										<th>Quantity</th>
+										<th>Total</th>
+										<th class="text-end">Close</th>
+									</tr>
+								</thead>
+								<tbody>
+									{% for item in items %}
+									<tr data-cart-row data-update-url="{% url 'cart:update' item.product_id %}" data-unit-price="{{ item.product.current_price|unlocalize }}">
+										<td class="product-item-img"><a href="{{ item.product.get_absolute_url }}"><img src="{{ item.product.image.url }}" alt="{{ item.product.title }}"></a></td>
+										<td class="product-item-name"><a href="{{ item.product.get_absolute_url }}">{{ item.product.title }}</a></td>
+										<td class="product-item-price">{{ item.product.current_price }}&nbsp;€{% if item.product.has_promo %} <del>{{ item.product.price }}&nbsp;€</del>{% endif %}</td>
+										<td class="product-item-quantity">
+											<div class="quantity btn-quantity style-1 me-3">
+												<input class="quantity-input" type="text" value="{{ item.quantity }}" name="quantity" aria-label="Quantity of {{ item.product.title }}" data-saved="{{ item.quantity }}" data-mini-quantity="{{ item.product_id }}" data-bts-min="1" data-bts-max="100"/>
+											</div>
+										</td>
+										<td class="product-item-totle" data-cart-row-total>{{ item.total }}&nbsp;€</td>
+										<td class="product-item-close"><button type="submit" class="ti-close" form="cart-remove-{{ item.pk }}" aria-label="Remove {{ item.product.title }}"></button></td>
+									</tr>
+									{% endfor %}
+								</tbody>
+							</table>
+						</div>
+						{% for item in items %}
+						<form id="cart-remove-{{ item.pk }}" method="post" action="{% url 'cart:remove' item.product_id %}">
+							{% csrf_token %}
+						</form>
+						{% endfor %}
+						<div class="row m-t20">
+							<div class="col-md-6">
+								<div class="widget">
+									<h4 class="widget-title">Cart Subtotal</h4>
+									<table class="table-bordered check-tbl m-b15">
+										<tbody>
+											<tr>
+												<td>Order Subtotal</td>
+												<td id="cart-subtotal">{{ cart_summary.subtotal }}&nbsp;€</td>
+											</tr>
+											<tr>
+												<td>Shipping</td>
+												<td id="cart-shipping">{% if cart_summary.free_shipping %}Free Shipping{% else %}{{ cart_summary.shipping }}&nbsp;€{% endif %}</td>
+											</tr>
+											<tr>
+												<td>Total</td>
+												<td id="cart-total">{{ cart_summary.total }}&nbsp;€</td>
+											</tr>
+										</tbody>
+									</table>
+									<p class="m-b0">Free shipping on orders from {{ cart_summary.free_shipping_threshold }}&nbsp;€.</p>
+								</div>
+							</div>
+							<div class="col-md-6 text-md-end m-b30">
+								<a href="javascript:void(0);" aria-disabled="true" class="btn btn-primary btnhover">Proceed to Checkout</a>
+							</div>
+						</div>
+						{% else %}
+						<div class="shop-bx">
+							<p class="m-b20">Your shopping cart is empty.</p>
+							<a href="{% url 'products:book-list' %}" class="btn btn-primary btnhover">Browse Books</a>
+						</div>
+						{% endif %}
+					</div>
+				</div>
+			</div>
+		</section>
+	</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'vendor/bootstrap-touchspin/bootstrap-touchspin.js' %}"></script><!-- BOOTSTRAP TOUCHSPIN JS -->
+<script src="{% static 'js/cart.js' %}"></script>
+{% endblock %}

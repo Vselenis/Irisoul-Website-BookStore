@@ -44,11 +44,12 @@
 											</ul>
 											{% endif %}
 											<div class="d-flex">
-												<a href="shop-cart.html" class="btn btn-secondary btnhover btnhover2"><i class="flaticon-shopping-cart-1 m-r10"></i> Add to cart</a>
+												<button type="submit" form="cart-add-{{ product.pk }}" class="btn btn-secondary btnhover btnhover2"><i class="flaticon-shopping-cart-1 m-r10"></i> Add to cart</button>
 												{% include 'wishlist/includes/heart.html' with classes='bookmark-btn style-1' %}
 											</div>
 										</div>
 									</div>
 								</div>
 							</div>
+							{% include 'cart/includes/add_form.html' %}
 						</div>

@@ -48,6 +48,7 @@ PROJECT_APPS = [
     'products',
     'blog',
     'wishlist',
+    'cart',
 ]
 
 INSTALLED_APPS = [
@@ -83,6 +84,7 @@ TEMPLATES = [
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
                 'wishlist.context_processors.wishlist',
+                'cart.context_processors.cart',
             ],
         },
     },

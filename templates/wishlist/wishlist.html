@@ -47,7 +47,7 @@
 												</div>
 											</td>
 											<td class="product-item-totle" data-wishlist-total>{{ item.total }}&nbsp;€</td>
-											<td class="product-item-totle"><a href="javascript:void(0);" aria-disabled="true" class="btn btn-primary btnhover">Add To Cart</a></td>
+											<td class="product-item-totle"><button type="submit" form="wishlist-cart-{{ item.pk }}" class="btn btn-primary btnhover">Add To Cart</button></td>
 											<td class="product-item-close"><button type="submit" class="ti-close" form="wishlist-remove-{{ item.pk }}" aria-label="Remove {{ item.product.title }}"></button></td>
 										</tr>
 										{% endfor %}
@@ -61,6 +61,10 @@
 						{% for item in items %}
 						<form id="wishlist-remove-{{ item.pk }}" method="post" action="{% url 'wishlist:remove' item.product_id %}">
 							{% csrf_token %}
+						</form>
+						<form id="wishlist-cart-{{ item.pk }}" method="post" action="{% url 'cart:add' item.product_id %}">
+							{% csrf_token %}
+							<input type="hidden" name="quantity" value="{{ item.quantity }}">
 						</form>
 						{% endfor %}
 						{% else %}

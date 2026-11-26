@@ -53,10 +53,11 @@
 										</div>
 										<div class="product-num">
 											<div class="quantity btn-quantity style-1 me-3">
-												<input id="demo_vertical2" type="text" value="1" name="demo_vertical2" data-bts-min="1" data-bts-max="100"/>
+												<input id="demo_vertical2" class="quantity-input" type="text" value="1" name="quantity" form="cart-add-{{ product.pk }}" aria-label="Quantity" data-bts-min="1" data-bts-max="100"/>
 											</div>
-											<a href="shop-cart.html" class="btn btn-primary btnhover btnhover2"><i class="flaticon-shopping-cart-1"></i> <span>Add to cart</span></a>
+											<button type="submit" form="cart-add-{{ product.pk }}" class="btn btn-primary btnhover btnhover2"><i class="flaticon-shopping-cart-1"></i> <span class="m-l15">Add to cart</span></button>
 											{% include 'wishlist/includes/heart.html' with classes='bookmark-btn style-1 d-none d-sm-block' quantity_input='#demo_vertical2' %}
+											{% include 'cart/includes/add_form.html' %}
 										</div>
 									</div>
 								</div>

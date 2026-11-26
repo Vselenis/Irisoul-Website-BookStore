@@ -17,8 +17,9 @@
 												<span class="price-num">{{ product.current_price }}&nbsp;€</span>
 												{% if product.has_promo %}<del>{{ product.price }}&nbsp;€</del>{% endif %}
 											</div>
-											<a href="shop-cart.html" class="btn btn-secondary box-btn btnhover btnhover2"><i class="flaticon-shopping-cart-1 m-r10"></i> Add to cart</a>
+											<button type="submit" form="cart-add-{{ product.pk }}" class="btn btn-secondary box-btn btnhover btnhover2"><i class="flaticon-shopping-cart-1 m-r10"></i> Add to cart</button>
 										</div>
 									</div>
 								</div>
+								{% include 'cart/includes/add_form.html' %}
 							</div>

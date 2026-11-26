@@ -22,7 +22,7 @@
 				<span>Wishlist</span></a>
 			</li>
 			<li>
-				<a href="javascript:void(0);" aria-disabled="true"{% if active == 'cart' %} class="active"{% endif %}><i class="flaticon-shopping-cart-1"></i>
+				<a href="{% url 'cart:cart' %}"{% if active == 'cart' %} class="active"{% endif %}><i class="flaticon-shopping-cart-1"></i>
 				<span>Shopping Cart</span></a>
 			</li>
 			<li>
