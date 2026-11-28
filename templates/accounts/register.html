@@ -14,6 +14,9 @@
 							<div class="login-area">
 								<form method="post" action="{% url 'accounts:register' %}">
 									{% csrf_token %}
+									{% if next %}
+									<input type="hidden" name="next" value="{{ next }}">
+									{% endif %}
 									<h4 class="text-secondary">Registration</h4>
 									<p class="font-weight-600">If you don't have an account with us, please Registration.</p>
 									{% if form.non_field_errors %}

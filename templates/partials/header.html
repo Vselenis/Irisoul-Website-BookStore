@@ -30,13 +30,18 @@
 									<li class="cart-item">
 										<div class="media"> 
 											<div class="media-left"> 
-												<a href="{{ item.product.get_absolute_url }}"> 
+												{% if item.product.is_purchasable %}<a href="{{ item.product.get_absolute_url }}">{% endif %} 
 													<img alt="{{ item.product.title }}" class="media-object" src="{{ item.product.image.url }}"> 
-												</a> 
+												{% if item.product.is_purchasable %}</a>{% endif %} 
 											</div> 
 											<div class="media-body"> 
+												{% if item.product.is_purchasable %}
 												<h6 class="dz-title"><a href="{{ item.product.get_absolute_url }}" class="media-heading">{{ item.product.title }}</a></h6>
 												<span class="dz-price"><span data-cart-mini-quantity="{{ item.product_id }}">{{ item.quantity }}</span> &times; {{ item.product.current_price }}&nbsp;€</span>
+												{% else %}
+												<h6 class="dz-title">{{ item.product.title }}</h6>
+												<span class="text-danger">Unavailable</span>
+												{% endif %}
 												<form method="post" action="{% url 'cart:remove' item.product_id %}">
 													{% csrf_token %}
 													<input type="hidden" name="next" value="{{ request.get_full_path }}">
@@ -50,7 +55,7 @@
 										<h6 class="m-0">Your shopping cart is empty.</h6>
 									</li>
 									{% endfor %}
-									{% if cart_summary.items %}
+									{% if cart_summary.purchasable_items %}
 									<li class="cart-item text-center">
 										<h6 class="text-secondary">Subtotal = <span id="cart-mini-subtotal">{{ cart_summary.subtotal }}&nbsp;€</span></h6>
 									</li>

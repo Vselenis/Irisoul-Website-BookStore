@@ -27,7 +27,19 @@
 									</div>
 								</div>
 								<div class="dz-body">
-									{% if product.product_type == 'book' %}
+									{% if product.is_bundle %}
+									<div class="book-detail">
+										<h6 class="m-b15">This bundle includes:</h6>
+										<ul class="list-unstyled m-b0">
+											{% for item in product.bundle.items.all %}
+											<li class="d-flex align-items-center m-b10">
+												<a href="{{ item.get_absolute_url }}" class="m-r15"><img src="{{ item.image.url }}" alt="{{ item.title }}" width="50"></a>
+												<a href="{{ item.get_absolute_url }}">{{ item.title }}</a>
+											</li>
+											{% endfor %}
+										</ul>
+									</div>
+									{% elif product.book_details %}
 									<div class="book-detail">
 										<ul class="book-info">
 											<li>
@@ -46,18 +58,30 @@
 										<p class="mb-0 product-description-text is-clamped" id="product-description">{{ product.description|linebreaksbr }}</p>
 										<a href="javascript:void(0);" class="description-toggle" id="description-toggle" hidden>View more</a>
 									</div>
+									{% if product.is_bundle and product.has_promo %}
+									<p class="text-primary m-b10">You save {{ product.saving }}&nbsp;€</p>
+									{% endif %}
 									<div class="book-footer">
 										<div class="price">
+											{% if product.is_free_pdf %}
+											<h5>Free</h5>
+											{% else %}
 											<h5 data-unit-price="{{ product.current_price|unlocalize }}">{{ product.current_price }}&nbsp;€</h5>
 											{% if product.has_promo %}<p class="p-lr10" data-unit-price="{{ product.price|unlocalize }}">{{ product.price }}&nbsp;€</p>{% endif %}
+											{% endif %}
 										</div>
 										<div class="product-num">
+											{% if product.is_free_pdf %}
+											<a href="{{ product.get_download_url }}" class="btn btn-primary btnhover btnhover2"><i class="fas fa-download"></i> <span class="m-l15">Free Download</span></a>
+											{% include 'wishlist/includes/heart.html' with classes='bookmark-btn style-1 d-none d-sm-block' %}
+											{% else %}
 											<div class="quantity btn-quantity style-1 me-3">
 												<input id="demo_vertical2" class="quantity-input" type="text" value="1" name="quantity" form="cart-add-{{ product.pk }}" aria-label="Quantity" data-bts-min="1" data-bts-max="100"/>
 											</div>
 											<button type="submit" form="cart-add-{{ product.pk }}" class="btn btn-primary btnhover btnhover2"><i class="flaticon-shopping-cart-1"></i> <span class="m-l15">Add to cart</span></button>
 											{% include 'wishlist/includes/heart.html' with classes='bookmark-btn style-1 d-none d-sm-block' quantity_input='#demo_vertical2' %}
 											{% include 'cart/includes/add_form.html' %}
+											{% endif %}
 										</div>
 									</div>
 								</div>
@@ -80,7 +104,7 @@
 											<th>Book Title</th>
 											<td>{{ product.title }}</td>
 										</tr>
-										{% if product.product_type == 'book' %}
+										{% if product.book_details %}
 										<tr>
 											<th>Author</th>
 											<td>{{ product.book.authors.all|join:', ' }}</td>

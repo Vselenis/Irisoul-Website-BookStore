@@ -37,6 +37,27 @@
 									</thead>
 									<tbody>
 										{% for item in items %}
+										{% if not item.product.is_available %}
+										<tr>
+											<td class="product-item-img"><img src="{{ item.product.image.url }}" alt="{{ item.product.title }}"></td>
+											<td class="product-item-name">{{ item.product.title }}<small class="d-block text-danger">This product is currently unavailable.</small></td>
+											<td class="product-item-price">&ndash;</td>
+											<td class="product-item-quantity">{{ item.quantity }}</td>
+											<td class="product-item-totle">&ndash;</td>
+											<td class="product-item-totle"></td>
+											<td class="product-item-close"><button type="submit" class="ti-close" form="wishlist-remove-{{ item.pk }}" aria-label="Remove {{ item.product.title }}"></button></td>
+										</tr>
+										{% elif item.product.is_free_pdf %}
+										<tr>
+											<td class="product-item-img"><a href="{{ item.product.get_absolute_url }}"><img src="{{ item.product.image.url }}" alt="{{ item.product.title }}"></a></td>
+											<td class="product-item-name"><a href="{{ item.product.get_absolute_url }}">{{ item.product.title }}</a></td>
+											<td class="product-item-price">Free</td>
+											<td class="product-item-quantity">&ndash;</td>
+											<td class="product-item-totle">&ndash;</td>
+											<td class="product-item-totle"><a href="{{ item.product.get_download_url }}" class="btn btn-primary btnhover">Free Download</a></td>
+											<td class="product-item-close"><button type="submit" class="ti-close" form="wishlist-remove-{{ item.pk }}" aria-label="Remove {{ item.product.title }}"></button></td>
+										</tr>
+										{% else %}
 										<tr data-wishlist-row data-unit-price="{{ item.product.current_price|unlocalize }}">
 											<td class="product-item-img"><a href="{{ item.product.get_absolute_url }}"><img src="{{ item.product.image.url }}" alt="{{ item.product.title }}"></a></td>
 											<td class="product-item-name"><a href="{{ item.product.get_absolute_url }}">{{ item.product.title }}</a></td>
@@ -50,6 +71,7 @@
 											<td class="product-item-totle"><button type="submit" form="wishlist-cart-{{ item.pk }}" class="btn btn-primary btnhover">Add To Cart</button></td>
 											<td class="product-item-close"><button type="submit" class="ti-close" form="wishlist-remove-{{ item.pk }}" aria-label="Remove {{ item.product.title }}"></button></td>
 										</tr>
+										{% endif %}
 										{% endfor %}
 									</tbody>
 								</table>

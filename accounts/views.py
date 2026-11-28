@@ -8,6 +8,7 @@ from django.contrib.messages.views import SuccessMessageMixin
 from django.shortcuts import redirect, render, resolve_url
 from django.urls import reverse_lazy
 from django.views.generic import CreateView,UpdateView
+from django.utils.http import url_has_allowed_host_and_scheme
 
 from .forms import LoginForm, RegistrationForm, ProfileForm
 from .models import User
@@ -30,9 +31,23 @@ class RegisterView(CreateView):
             return redirect(self.get_success_url())
         return super().dispatch(request, *args, **kwargs)
 
-    def get_success_url(self):
-        return resolve_url(settings.LOGIN_REDIRECT_URL)
+    def get_redirect_url(self):
+        next_url=self.request.POST.get('next', self.request.GET.get('next', ''))
+        if url_has_allowed_host_and_scheme(
+            next_url,
+            allowed_hosts={self.request.get_host()},
+            require_https=self.request.is_secure(),
+        ):
+            return next_url
+        return ''
 
+    def get_success_url(self):
+        return  self.get_redirect_url() or resolve_url(settings.LOGIN_REDIRECT_URL)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['next'] = self.get_redirect_url()
+        return context
 
     def form_valid(self, form):
         response = super().form_valid(form)

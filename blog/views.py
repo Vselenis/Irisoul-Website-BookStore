@@ -27,6 +27,8 @@ class BlogSidebarMixin:
     def get_discover_books(self):
         return list(
             Product.objects.filter(product_type=Product.ProductType.BOOK)
+            .available()
+            .select_related('bundle')
             .prefetch_related('categories')
             .order_by('?')[:self.discover_count]
         )

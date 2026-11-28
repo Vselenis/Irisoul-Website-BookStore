@@ -21,6 +21,25 @@
 								{% if view_mode == 'grid' %}<input type="hidden" name="view" value="grid">{% endif %}
 								{% if sort != 'newest' %}<input type="hidden" name="sort" value="{{ sort }}">{% endif %}
 							<div class="accordion accordion-filter" id="accordionExample">
+								{% if offer_choices %}
+								<div class="accordion-item">
+									<button class="accordion-button{% if not selected_offers %} collapsed{% endif %}" id="headingOffers" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOffers" aria-expanded="{% if selected_offers %}true{% else %}false{% endif %}" aria-controls="collapseOffers">
+										Special Offers
+									</button>
+									<div id="collapseOffers" class="accordion-collapse collapse accordion-body{% if selected_offers %} show{% endif %}" aria-labelledby="headingOffers" data-bs-parent="#accordionExample">
+										<div class="widget dz-widget_services">
+											{% for value, label in offer_choices %}
+											<div class="form-check search-content">
+												<input class="form-check-input" type="checkbox" name="offer" value="{{ value }}" id="offer-{{ value }}"{% if value in selected_offers %} checked{% endif %}>
+												<label class="form-check-label" for="offer-{{ value }}">
+													{{ label }}
+												</label>
+											</div>
+											{% endfor %}
+										</div>
+									</div>
+								</div>
+								{% endif %}
 								<div class="accordion-item">
 									<button class="accordion-button" id="headingFive" type="button" data-bs-toggle="collapse" data-bs-target="#collapseFive" aria-expanded="false" aria-controls="collapseFive">
 										Price Range
@@ -62,21 +81,6 @@
 										</div>
 										<input type="hidden" name="min_rating" value="{{ filters.min_rating|default_if_none:''|unlocalize }}">
 										<input type="hidden" name="max_rating" value="{{ filters.max_rating|default_if_none:''|unlocalize }}">
-									</div>
-								</div>
-								<div class="accordion-item">
-									<button class="accordion-button{% if not filters.promo %} collapsed{% endif %}" id="headingPromo" type="button" data-bs-toggle="collapse" data-bs-target="#collapsePromo" aria-expanded="{% if filters.promo %}true{% else %}false{% endif %}" aria-controls="collapsePromo">
-										Promotion
-									</button>
-									<div id="collapsePromo" class="accordion-collapse collapse accordion-body{% if filters.promo %} show{% endif %}" aria-labelledby="headingPromo" data-bs-parent="#accordionExample">
-										<div class="widget dz-widget_services">
-											<div class="form-check search-content">
-												<input class="form-check-input" type="checkbox" name="promo" value="1" id="promo-only"{% if filters.promo %} checked{% endif %}>
-												<label class="form-check-label" for="promo-only">
-													Only {{ heading|lower }} on promotion
-												</label>
-											</div>
-										</div>
 									</div>
 								</div>
 							

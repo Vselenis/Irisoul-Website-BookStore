@@ -5,6 +5,7 @@
 									</div>
 									{% include 'wishlist/includes/heart.html' with classes='bookmark-btn style-2' %}
 									<div class="dz-content">
+										{% if product.is_bundle %}<span class="badge bg-primary m-b10">Christmas Bundle</span>{% elif product.is_free_pdf %}<span class="badge bg-primary m-b10">Free PDF</span>{% endif %}
 										<h5 class="title"><a href="{{ product.get_absolute_url }}">{{ product.title }}</a></h5>
 										<ul class="dz-tags">
 											{% for category in product.categories.all %}
@@ -14,10 +15,10 @@
 										{% include 'products/includes/rating_stars.html' with stars=product.rating_stars %}
 										<div class="book-footer">
 											<div class="price">
-												<span class="price-num">{{ product.current_price }}&nbsp;€</span>
-												{% if product.has_promo %}<del>{{ product.price }}&nbsp;€</del>{% endif %}
+												{% if product.is_free_pdf %}<span class="price-num">Free</span>{% else %}<span class="price-num">{{ product.current_price }}&nbsp;€</span>
+												{% if product.has_promo %}<del>{{ product.price }}&nbsp;€</del>{% endif %}{% endif %}
 											</div>
-											<button type="submit" form="cart-add-{{ product.pk }}" class="btn btn-secondary box-btn btnhover btnhover2"><i class="flaticon-shopping-cart-1 m-r10"></i> Add to cart</button>
+											{% if product.is_free_pdf %}<a href="{{ product.get_download_url }}" class="btn btn-secondary box-btn btnhover btnhover2"><i class="fas fa-download m-r10"></i> Free Download</a>{% else %}<button type="submit" form="cart-add-{{ product.pk }}" class="btn btn-secondary box-btn btnhover btnhover2"><i class="flaticon-shopping-cart-1 m-r10"></i> Add to cart</button>{% endif %}
 										</div>
 									</div>
 								</div>

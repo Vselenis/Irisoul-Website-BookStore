@@ -10,10 +10,14 @@
 			{% endfor %}
 		</ul>
 		<div class="price">
-			<span class="price-num">{{ product.current_price }}&nbsp;€</span>
-			{% if product.has_promo %}<del>{{ product.price }}&nbsp;€</del>{% endif %}
+			{% if product.is_free_pdf %}<span class="price-num">Free</span>{% else %}<span class="price-num">{{ product.current_price }}&nbsp;€</span>
+			{% if product.has_promo %}<del>{{ product.price }}&nbsp;€</del>{% endif %}{% endif %}
 		</div>
+		{% if product.is_free_pdf %}
+		<a href="{{ product.get_download_url }}" class="btn btn-outline-primary btn-sm btnhover btnhover2"><i class="fas fa-download me-2"></i> Free Download</a>
+		{% else %}
 		<button type="submit" form="cart-add-{{ product.pk }}" class="btn btn-outline-primary btn-sm btnhover btnhover2"><i class="flaticon-shopping-cart-1 me-2"></i> Add to cart</button>
 		{% include 'cart/includes/add_form.html' %}
+		{% endif %}
 	</div>
 </div>

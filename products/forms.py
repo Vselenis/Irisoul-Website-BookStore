@@ -3,7 +3,6 @@ from django import forms
 from .models import Review
 
 
-
 class ProductFilterForm(forms.Form):
     SORT_CHOICES = [
         ('newest', 'Newest'),
@@ -17,13 +16,13 @@ class ProductFilterForm(forms.Form):
     max_price = forms.DecimalField(required=False, min_value=0, max_digits=10, decimal_places=2)
     min_rating = forms.DecimalField(required=False, min_value=0, max_value=5, max_digits=3, decimal_places=2)
     max_rating = forms.DecimalField(required=False, min_value=0, max_value=5, max_digits=3, decimal_places=2)
-    promo = forms.BooleanField(required=False)
+    offer = forms.MultipleChoiceField(required=False)
     sort = forms.ChoiceField(choices=SORT_CHOICES, required=False)
 
-    def __init__(self, *args, categories=(), **kwargs):
+    def __init__(self, *args, categories=(), offers=(),  **kwargs):
         super().__init__(*args, **kwargs)
         self.fields['category'].choices = [(category.slug, category.name) for category in categories]
-
+        self.fields['offer'].choices=list(offers)
 
 class ReviewForm(forms.ModelForm):
     rating = forms.TypedChoiceField(

@@ -26,7 +26,7 @@ class WishlistView(LoginRequiredMixin, ListView):
     context_object_name= 'items'
 
     def get_queryset(self):
-        return self.request.user.wishlist_items.select_related('product')
+        return self.request.user.wishlist_items.select_related('product__bundle')
 
 
 class WishlistActionMixin(LoginRequiredMixin):
@@ -50,7 +50,9 @@ class WishlistActionMixin(LoginRequiredMixin):
 
 class WishlistAddView(WishlistActionMixin, View):
     def post(self, request, product_id):
-        product = get_object_or_404(Product, pk=product_id)
+        product = get_object_or_404(Product.objects.select_related('bundle'), pk=product_id)
+        if not product.is_available:
+            return JsonResponse({'error': 'This product is currently unavailable.'}, status=400)
         form = QuantityForm({'quantity': request.POST.get('quantity', 1)})
         if not form.is_valid():
             return JsonResponse({'error': form.errors['quantity'][0]}, status=400)

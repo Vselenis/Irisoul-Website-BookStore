@@ -34,6 +34,7 @@
 								</thead>
 								<tbody>
 									{% for item in items %}
+									{% if item.product.is_purchasable %}
 									<tr data-cart-row data-update-url="{% url 'cart:update' item.product_id %}" data-unit-price="{{ item.product.current_price|unlocalize }}">
 										<td class="product-item-img"><a href="{{ item.product.get_absolute_url }}"><img src="{{ item.product.image.url }}" alt="{{ item.product.title }}"></a></td>
 										<td class="product-item-name"><a href="{{ item.product.get_absolute_url }}">{{ item.product.title }}</a></td>
@@ -46,6 +47,16 @@
 										<td class="product-item-totle" data-cart-row-total>{{ item.total }}&nbsp;€</td>
 										<td class="product-item-close"><button type="submit" class="ti-close" form="cart-remove-{{ item.pk }}" aria-label="Remove {{ item.product.title }}"></button></td>
 									</tr>
+									{% else %}
+									<tr>
+										<td class="product-item-img"><img src="{{ item.product.image.url }}" alt="{{ item.product.title }}"></td>
+										<td class="product-item-name">{{ item.product.title }}<small class="d-block text-danger">This product is currently unavailable.</small></td>
+										<td class="product-item-price">&ndash;</td>
+										<td class="product-item-quantity">{{ item.quantity }}</td>
+										<td class="product-item-totle">&ndash;</td>
+										<td class="product-item-close"><button type="submit" class="ti-close" form="cart-remove-{{ item.pk }}" aria-label="Remove {{ item.product.title }}"></button></td>
+									</tr>
+									{% endif %}
 									{% endfor %}
 								</tbody>
 							</table>
@@ -79,7 +90,9 @@
 								</div>
 							</div>
 							<div class="col-md-6 text-md-end m-b30">
+								{% if cart_summary.purchasable_items %}
 								<a href="{% url 'cart:checkout' %}" class="btn btn-primary btnhover">Proceed to Checkout</a>
+								{% endif %}
 							</div>
 						</div>
 						{% else %}

@@ -65,7 +65,13 @@ class CartActionMixin(LoginRequiredMixin):
 
 class CartAddView(CartActionMixin, View):
     def post(self, request, product_id):
-        product = get_object_or_404(Product, pk=product_id)
+        product = get_object_or_404(Product.objects.select_related('bundle'), pk=product_id)
+        if product.is_free_pdf:
+            messages.error(request, f'"{product.title}" is a free PDF. Use Free Download on its page.')
+            return redirect('cart:cart')
+        if not product.is_available:
+            messages.error(request, f'"{product.title}" is currently unavailable.')
+            return redirect('cart:cart')
         form = QuantityForm({'quantity': request.POST.get('quantity', 1)})
         if not form.is_valid():
             messages.error(request, QUANTITY_ERROR)
@@ -111,7 +117,12 @@ class CartUpdateView(CartActionMixin, View):
         form = QuantityForm({'quantity': request.POST.get('quantity')})
         if not form.is_valid():
             return JsonResponse({'error': form.errors['quantity'][0]}, status=400)
-        updated = request.user.cart_items.filter(product_id=product_id).update(
+        cart_item =request.user.cart_items.select_related('product__bundle').filter(product_id=product_id).first()
+        if cart_item is None:
+            return JsonResponse({'error': 'This book is no longer in your shopping cart.'}, status=404)
+        if not cart_item.product.is_purchasable:
+            return JsonResponse({'error': 'This product is currently unavailable.'}, status=400)
+        updated = request.user.cart_items.filter(pk=cart_item.pk).update(
             quantity=form.cleaned_data['quantity'],
         )
 
@@ -139,14 +150,14 @@ class CheckoutView(LoginRequiredMixin, FormView):
     def dispatch(self, request, *args, **kwargs):
         if request.user.is_authenticated:
             self.summary = CartSummary.for_user(request.user)
-            if not self.summary.items:
+            if not self.summary.purchasable_items:
                 return redirect('cart:cart')
         return super().dispatch(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['cart_summary'] = self.summary
-        context['items'] = self.summary.items
+        context['items'] = self.summary.purchasable_items
         return context
 
 
@@ -155,5 +166,5 @@ class ThankYouView(LoginRequiredMixin, TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['item_count'] = self.request.user.cart_items.count()
+        context['item_count'] =len(CartSummary.for_user(self.request.user).purchasable_items)
         return context

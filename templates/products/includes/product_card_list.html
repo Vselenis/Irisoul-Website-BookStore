@@ -11,11 +11,12 @@
 												<li><a href="?category={{ category.slug }}">{{ category.name|upper }}{% if not forloop.last %},{% endif %}</a></li>
 												{% endfor %}
 											</ul>
+											{% if product.is_bundle %}<span class="badge bg-primary m-b10">Christmas Bundle</span>{% elif product.is_free_pdf %}<span class="badge bg-primary m-b10">Free PDF</span>{% endif %}
 											<h4 class="title mb-0"><a href="{{ product.get_absolute_url }}">{{ product.title }}</a></h4>
 										</div>
 										<div class="price">
-											<span class="price-num text-primary">{{ product.current_price }}&nbsp;€</span>
-											{% if product.has_promo %}<del>{{ product.price }}&nbsp;€</del>{% endif %}
+											{% if product.is_free_pdf %}<span class="price-num text-primary">Free</span>{% else %}<span class="price-num text-primary">{{ product.current_price }}&nbsp;€</span>
+											{% if product.has_promo %}<del>{{ product.price }}&nbsp;€</del>{% endif %}{% endif %}
 										</div>
 									</div>
 
@@ -36,7 +37,12 @@
 											</div>
 										</div>
 										<div class="rate">
-											{% if product.product_type == 'book' %}
+											{% if product.is_bundle %}
+											<ul class="book-info">
+												<li><span>Includes</span>{{ product.bundle.items.all|join:', ' }}</li>
+												<li><span>You save</span>{{ product.saving }}&nbsp;€</li>
+											</ul>
+											{% elif product.book_details %}
 											<ul class="book-info">
 												<li><span>Writen by</span>{{ product.book.authors.all|join:', ' }}</li>
 												<li><span>Publisher</span>{{ product.book.publisher.name }}</li>
@@ -44,7 +50,7 @@
 											</ul>
 											{% endif %}
 											<div class="d-flex">
-												<button type="submit" form="cart-add-{{ product.pk }}" class="btn btn-secondary btnhover btnhover2"><i class="flaticon-shopping-cart-1 m-r10"></i> Add to cart</button>
+												{% if product.is_free_pdf %}<a href="{{ product.get_download_url }}" class="btn btn-secondary btnhover btnhover2"><i class="fas fa-download m-r10"></i> Free Download</a>{% else %}<button type="submit" form="cart-add-{{ product.pk }}" class="btn btn-secondary btnhover btnhover2"><i class="flaticon-shopping-cart-1 m-r10"></i> Add to cart</button>{% endif %}
 												{% include 'wishlist/includes/heart.html' with classes='bookmark-btn style-1' %}
 											</div>
 										</div>

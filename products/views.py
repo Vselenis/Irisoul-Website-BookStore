@@ -1,13 +1,18 @@
 from math import ceil, floor
 from django.db import IntegrityError,transaction
-from django.db.models import Avg, Count, Exists, Max, Min, OuterRef,Prefetch
+from django.db.models import Avg, Count, Exists, Max, Min, OuterRef,Prefetch,Q
 from django.db.models.functions import Coalesce, Round
-from django.shortcuts import redirect, render
+from django.shortcuts import redirect, render,get_object_or_404
 from django.urls import reverse
 from django.views.generic import ListView, DetailView
+from django.contrib.auth.views import redirect_to_login
+from django.http import FileResponse, Http404
+from django.utils import timezone
+from django.views import View
 
 from .forms import ProductFilterForm,ReviewForm
-from .models import Category, Product,Review
+from .models import Category, Product,Review,promo_active_q
+
 
 # Create your views here.
 def with_ratings(queryset):
@@ -22,6 +27,12 @@ class ProductListView(ListView):
     context_object_name = 'products'
     product_type = None
     heading = ''
+    offers = ()
+    offer_labels = {
+        'bundles': 'Christmas Bundles',
+        'deals': 'December Deals',
+        'free_pdf': 'Free PDF',
+    }
     page_sizes = {'list': 5, 'grid': 10}
     orderings = {
         'newest': ('-created_at', '-pk'),
@@ -33,7 +44,8 @@ class ProductListView(ListView):
     def get(self, request, *args, **kwargs):
         self.view_mode= 'grid' if request.GET.get('view') == 'grid' else 'list'
         self.categories= self.get_categories()
-        form = ProductFilterForm(request.GET, categories=self.categories)
+        self.offer_choices = [(key, self.offer_labels[key]) for key in self.offers]
+        form = ProductFilterForm(request.GET, categories=self.categories, offers=self.offer_choices)
         form.is_valid()
         self.filters = form.cleaned_data
         self.sort = self.filters.get('sort') or 'newest'
@@ -43,13 +55,21 @@ class ProductListView(ListView):
     def get_categories(self):
         return list(Category.objects.filter(products__product_type=self.product_type).distinct())
 
-
-
     def get_base_queryset(self):
-        return Product.objects.filter(product_type=self.product_type).annotate(
-            effective_price=Coalesce('promo_price', 'price'),
-        )
+        return Product.objects.filter(
+            product_type=self.product_type
+        ).available().with_effective_price()
 
+    def get_offer_filter(self, offers):
+        conditions = {
+            'bundles': Q(bundle__isnull=False),
+            'deals': promo_active_q(timezone.localdate()) & Q(bundle__isnull=True),
+            'free_pdf': ~Q(free_pdf=''),
+        }
+        combined = Q()
+        for offer in offers:
+            combined |= conditions[offer]
+        return combined
 
     def get_queryset(self):
         queryset = with_ratings(self.get_base_queryset())
@@ -71,11 +91,11 @@ class ProductListView(ListView):
             queryset = queryset.filter(avg_rating__gte=filters['min_rating'])
         if filters.get('max_rating') is not None:
             queryset = queryset.filter(avg_rating__lte=filters['max_rating'])
-        if filters.get('promo'):
-            queryset = queryset.filter(promo_price__isnull=False)
+        if filters.get('offer'):
+            queryset = queryset.filter(self.get_offer_filter(filters['offer']))
         return (
-            queryset.select_related('book__publisher')
-            .prefetch_related('categories', 'book__authors')
+            queryset.select_related('book__publisher', 'bundle')
+            .prefetch_related('categories', 'book__authors', 'bundle__items')
             .order_by(*self.orderings[self.sort])
         )
     def get_paginate_by(self, queryset):
@@ -104,6 +124,8 @@ class ProductListView(ListView):
             'filters': filters,
             'category_columns': [self.categories[:half], self.categories[half:]],
             'selected_categories': filters.get('category') or [],
+            'offer_choices': self.offer_choices,
+            'selected_offers': filters.get('offer') or [],
             'price_bounds': {'min': price_min, 'max': price_max},
             'rating_active': filters.get('min_rating') is not None or filters.get('max_rating') is not None,
             'page_range': context['paginator'].get_elided_page_range(
@@ -126,10 +148,11 @@ class ProductDetailView(DetailView):
     def get_queryset(self):
         return (
             with_ratings(Product.objects.filter(product_type=self.product_type))
-            .select_related('book__publisher')
+            .select_related('book__publisher','bundle')
             .prefetch_related(
                 'categories',
                 'book__authors',
+                'bundle__items',
                 Prefetch('reviews', queryset=Review.objects.select_related('user')),
             )
         )
@@ -141,6 +164,7 @@ class ProductDetailView(DetailView):
             return []
         return list(
             Product.objects.filter(product_type=self.product_type)
+            .available()
             .exclude(pk=self.object.pk)
             .filter(
                 Exists(
@@ -150,10 +174,16 @@ class ProductDetailView(DetailView):
                     )
                 )
             )
+            .select_related('bundle')
             .prefetch_related('categories')
             .order_by('?')[:self.related_count]
         )
-
+    def get(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        if not self.object.is_available:
+            return redirect('core:home')
+        context = self.get_context_data(object=self.object)
+        return self.render_to_response(context)
 
     def has_reviewed(self):
         user = self.request.user
@@ -175,6 +205,8 @@ class ProductDetailView(DetailView):
 
     def post(self, request, *args, **kwargs):
         self.object = self.get_object()
+        if not self.object.is_available:
+            return redirect('core:home')
         if not request.user.is_authenticated:
             form = ReviewForm(initial={
                 'rating': request.POST.get('rating'),
@@ -194,3 +226,17 @@ class ProductDetailView(DetailView):
         except IntegrityError:
             return self.render_to_response(self.get_context_data(already_reviewed=True))
         return redirect(f'{self.object.get_absolute_url()}#reviews')
+
+
+class FreePDFDownloadView(View):
+    product_type=None
+
+    def get(self, request, slug):
+        product=get_object_or_404(Product.objects.free_pdfs(), product_type=self.product_type, slug=slug)
+        if not request.user.is_authenticated:
+            return redirect_to_login(product.get_absolute_url())
+        try:
+            file=product.free_pdf.open('rb')
+        except FileNotFoundError:
+            raise Http404('The PDF file is not available.')
+        return FileResponse(file, as_attachment=True, filename=f'{product.slug}.pdf', content_type='application/pdf')
